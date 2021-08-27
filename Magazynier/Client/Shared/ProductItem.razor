@@ -1,0 +1,37 @@
+@using Magazynier.Shared
+
+<MudContainer>
+    <MudText Color="_color">
+        @Product.Name <MudAvatar Size="Size.Medium" Image="@Product.ImageUrl"/>
+        @Product.Quantity / @Product.MaxQuantity
+    </MudText>
+   
+ <MudProgressLinear Color="_color" Value="Product.Quantity" Min="0" Max="Product.MaxQuantity" Class="my-7"/>
+</MudContainer>
+
+@code {
+
+    [Parameter]public Product Product { get; set; }
+
+    Color _color;
+
+    protected override void OnParametersSet()
+    {
+        if (Product.IsFull)
+        {
+            _color = Color.Success;
+        }
+        else if(Product.NeedToRefill)
+        {
+            _color = Color.Error;
+        }
+        else if (Product.Quantity < Product.MaxQuantity * 0.4)
+        {
+            _color = Color.Warning;
+        }
+        else
+        {
+            _color = Color.Info;
+        }
+    }
+}

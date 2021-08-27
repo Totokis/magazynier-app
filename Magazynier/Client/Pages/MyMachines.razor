@@ -1,0 +1,39 @@
+@page "/MyMachines"
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+@inject User User
+@inject IJSRuntime JSRuntime
+
+@if (_machinesList != null)
+{
+    @foreach (var machine in _machinesList)
+    {
+        <MachineCard Machine="machine"/>
+    }
+}
+
+
+@code {
+    Machine[] _machinesList;
+    NotificationSubscription _subscription;
+    protected override async Task OnInitializedAsync()
+    {
+        _machinesList = await HttpClient.GetFromJsonAsync<Machine[]>("machines");
+        _ = RequestNotificationSubscriptionAsync();
+    }
+    async Task RequestNotificationSubscriptionAsync()
+    {
+        _subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
+        if (_subscription != null)
+        {
+            try
+            {
+                await User.SubscribeToNotifications(_subscription);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+    }
+}

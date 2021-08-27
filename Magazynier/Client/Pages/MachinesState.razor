@@ -1,0 +1,27 @@
+@page "/MachinesState"
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+
+@if (_machinesList != null)
+{
+    @foreach (var machine in _machinesList)
+    {
+        <MachinePanel Machine="machine"/>
+    }
+}
+else
+{
+    <MudSkeleton SkeletonType="SkeletonType.Circle" Animation="Animation.Pulse"/>
+    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Animation="Animation.Pulse"/>
+}
+
+
+@code
+{
+    private Machine[] _machinesList;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        _machinesList = await HttpClient.GetFromJsonAsync<Machine[]>("machines");
+    }
+}

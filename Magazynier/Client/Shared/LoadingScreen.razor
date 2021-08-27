@@ -1,0 +1,25 @@
+
+@if (isLoaded)
+{
+    @ChildContent
+}
+else
+{
+    <MudCard>
+        
+        <MudCardMedia Image="img/machines/default.png"></MudCardMedia>
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+    </MudCard>
+}
+
+@code {
+    bool isLoaded;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoaded = true;
+    }
+}

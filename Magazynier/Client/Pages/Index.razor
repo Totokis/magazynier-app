@@ -1,0 +1,23 @@
+﻿@page "/"
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+
+<MudText Align="Align.Center" Typo="Typo.h4">Strona Główna</MudText>
+
+
+<MudContainer Class="mt-16 px-8" MaxWidth="MaxWidth.False">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"><MudSkeleton /></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"><MudSkeleton SkeletonType="SkeletonType.Circle" Width="50px" Height="50px" /></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="12" md="4">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 200px;"><MudSkeleton SkeletonType="SkeletonType.Rectangle" Width="200px" Height="110px" /></MudPaper>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudPaper Elevation="2" Class="pa-4" Style="height: 100%"></MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>

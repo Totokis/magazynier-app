@@ -1,0 +1,69 @@
+﻿@using Magazynier.Shared
+@using System.Threading
+@inject HttpClient HttpClient
+<MudNavMenu>
+    <MudNavLink Href="/">Strona Główna</MudNavLink>
+    <MudNavGroup Title="Moje maszyny" Expanded="true">
+        <MudNavLink Href="/MyMachines" Icon="@Icons.Filled.Dns">Moje maszyny</MudNavLink>
+        <MudNavLink Href="/AlertHistory" Icon="@Icons.Material.Filled.NotificationsActive">
+            @if (_alerts == 0)
+            {
+                <MudText>
+                    Historia alertów
+                </MudText>
+            }
+            else
+            {
+                <MudBadge Content="@_alerts" Overlap="false" Color="Color.Error" Class="my-4" Bottom="true">
+                    <MudText>
+                        Historia alertów
+                    </MudText>
+                </MudBadge>
+            }
+        </MudNavLink>
+    </MudNavGroup>
+    <MudNavLink Icon="@Icons.Material.Filled.StackedLineChart" Href="/machinesstate">Stan maszyn</MudNavLink>
+</MudNavMenu>
+
+@code
+{
+    int _alerts = 0;
+    CancellationTokenSource pollingCancellationToken;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await HttpClient.GetFromJsonAsync<List<MachineWarningNotification>>("alerts");
+        if (result != null)
+        {
+            _alerts = result.Count;
+        }
+        pollingCancellationToken?.Cancel();
+        PollForUpdates();
+    }
+    
+    private async void PollForUpdates()
+    {
+        pollingCancellationToken = new CancellationTokenSource();
+        while (!pollingCancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                var result = await HttpClient.GetFromJsonAsync<List<MachineWarningNotification>>("alerts");
+                if (result != null)
+                {
+                    _alerts = result.Count;
+                }
+                StateHasChanged();
+
+                await Task.Delay(4000);
+            }
+            catch (Exception ex)
+            {
+                _alerts = 0;
+                pollingCancellationToken.Cancel();
+                Console.Error.WriteLine(ex);
+                StateHasChanged();
+            }
+        }
+    }
+}

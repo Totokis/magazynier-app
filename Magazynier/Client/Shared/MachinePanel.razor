@@ -1,0 +1,37 @@
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+
+<MudCard Elevation="4" Class="my-4 mx-4">
+    <MudCardHeader>
+        <CardHeaderAvatar>
+            <MudAvatar Size="Size.Large" Image="@Machine.ImageUrl">I</MudAvatar>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Typo="Typo.body1">@Machine.Name</MudText>
+            <MudText Typo="Typo.body2">@Machine.Localization <MudIcon Icon="@Icons.Material.Filled.LocationOn"/></MudText>
+        </CardHeaderContent>
+    </MudCardHeader>
+    <MudCardContent>
+        @foreach (var product in Machine.ProductsList)
+        {
+            @product.Name
+            <MudSlider @bind-Value=@(product.Quantity) Min="0" Max="product.MaxQuantity" Step="1" Color="Color.Info">Value: @product.Quantity.ToString()</MudSlider>
+        }
+    </MudCardContent>
+    <MudDivider/>
+    <MudButton Variant="Variant.Filled" FullWidth="true" StartIcon="@Icons.Material.Filled.Save" Color="Color.Info" OnClick="SaveMachineState" Size="Size.Medium" 
+               >Save</MudButton>
+</MudCard>
+
+@code {
+
+    [Parameter] public Machine Machine { get; set; }
+
+    async Task SaveMachineState()
+    {
+        var response = await HttpClient.PutAsJsonAsync("machines", Machine);
+        response.EnsureSuccessStatusCode();
+        Snackbar.Add("Zapisano", Severity.Info);
+    }
+}

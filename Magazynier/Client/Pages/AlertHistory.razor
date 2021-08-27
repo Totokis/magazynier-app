@@ -1,0 +1,56 @@
+@page "/AlertHistory"
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+@inject ISnackbar Snackbar
+
+@if (_alerts != null)
+{
+    if (_alerts.Count == 0)
+    {
+        <MudAlert Class="mx-2 my-2" Severity="Severity.Info">Brak alertów</MudAlert>
+    }
+    else
+    {
+        @foreach (var alert in _alerts)
+            {
+                <MudButton Variant="Variant.Text">
+                    <MudAlert Class="mx-4 my-4" Severity="Severity.Error" Variant="Variant.Outlined">
+                        @alert.Title
+                        <p>@alert.AlertTime.ToShortTimeString()</p>
+                        <p>@alert.Message</p>
+                        <MudButton OnClick="() => DeleteNotification(alert)" Size="Size.Small" Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">Delete</MudButton>
+                    </MudAlert>
+                </MudButton>
+              
+            }
+    }
+    
+}
+else
+{
+    <p>Loading</p>
+}
+
+
+@code {
+    private List<MachineWarningNotification> _alerts;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetList();
+    }
+    private async Task GetList()
+    {
+
+        _alerts = await HttpClient.GetFromJsonAsync<List<MachineWarningNotification>>("alerts");
+    }
+    private async Task DeleteNotification(MachineWarningNotification machineWarningNotification)
+    {
+        var response = await HttpClient.PutAsJsonAsync("alerts", _alerts.IndexOf(machineWarningNotification));
+        response.EnsureSuccessStatusCode();
+        if (response.IsSuccessStatusCode)
+        {
+            Snackbar.Add("Usunięto", Severity.Success);
+            await GetList();
+        }
+    }
+}
