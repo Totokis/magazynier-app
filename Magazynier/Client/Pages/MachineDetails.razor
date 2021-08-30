@@ -1,0 +1,57 @@
+@page "/mymachines/{machineId:int}"
+@using MudBlazor.Services
+@using Magazynier.Shared
+@inject HttpClient HttpClient
+<style>
+    .mud-carousel {
+       height: @(_height*0.90)px !important;
+    }
+</style>
+@if (_machines == null)
+{
+    <text>Loading...</text>
+}
+else
+{
+    <MudCarousel TData="object" @bind-SelectedIndex="MachineId" ShowArrows="false" ShowDelimiters="true" AutoCycle="false" >
+        @foreach (var machine in _machines)
+        {
+            <MachineDetailCard Machine="machine" Alerts="@(_alerts!=null?SearchForAlerts(machine):null)"/>
+        }
+    </MudCarousel>
+}
+
+@code {
+    [Parameter] public int MachineId { get; set; }
+    [Inject] IResizeListenerService ResizeListener { get; set; }
+    Machine[] _machines;
+    List<MachineWarningNotification> _alerts;
+    int _width = 0;
+    int _height = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _machines = await HttpClient.GetFromJsonAsync<Machine[]>("machines");
+        _alerts = await HttpClient.GetFromJsonAsync<List<MachineWarningNotification>>("alerts");
+        await base.OnInitializedAsync();
+    }
+    private MachineWarningNotification[] SearchForAlerts(Machine machine)
+    {
+        var result = _alerts.FindAll(alert => alert.MachineName == machine.Name && alert.DistributionPoint == machine.Localization).ToArray();
+
+        return result;
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var size = await ResizeListener.GetBrowserWindowSize();
+            _height = size.Height;
+            _width = size.Width;
+            StateHasChanged();
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+}

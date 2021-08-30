@@ -1,36 +1,26 @@
 @using Magazynier.Shared
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
 
-<MudCard Class="my-5 mx4" Elevation="4">
+<MudCard Class="my-3 mx-2" Elevation="4">
     <MudCardHeader>
-        <MudText Typo="Typo.h5" Color="_color">
-            @Machine.Name @Machine.Localization <MudIcon Icon="@Icons.Material.Filled.LocationOn" Color="_color"/>
-        </MudText>
+        <CardHeaderAvatar>
+            <MudAvatar Style="width: 100px; height: 100px" Image="@Machine.ImageUrl" Color="_color"/>
+        </CardHeaderAvatar>
+        <CardHeaderContent>
+            <MudText Color="_color" Typo="Typo.h6">@Machine.Name</MudText>
+            <MudText Color="_color" Typo="Typo.subtitle2">Lokalizacja: @Machine.Localization <MudIcon Color="_color" Icon="@Icons.Material.Filled.LocationOn"/></MudText>
+        </CardHeaderContent>
+        <CardHeaderActions>
+            <MudIconButton Icon="@Icons.Material.Filled.Info" Color="_color" OnClick="OpenDetails"/>
+        </CardHeaderActions>
     </MudCardHeader>
-    <MudGrid>
-        <MudItem xs="4">
-            <MudContainer Fixed="true">
-                <MudCardMedia Image="@Machine.ImageUrl" Height="250"/>
-            </MudContainer>
-        </MudItem>
-        <MudItem xs="8">
-            <MudCardContent>
-                <MudAlert NoIcon="_noIcon" Severity="_severity" Variant="Variant.Outlined">
-                    Całkowita ilość: @Machine.CurrentNumberOfProducts / @Machine.Capacity
-                </MudAlert>
-                <MudProgressLinear Color="_noIcon == false ? Color.Error : Color.Info" Value="Machine.CurrentNumberOfProducts" Min="0" Max="Machine.Capacity" Class="my-7"/>
-                <MudList Clickable="false">
-                        <MudListItem> <MudText Typo="Typo.body2">Tu może być dodatkowy opis lub informacje</MudText></MudListItem>
-                        <MudDivider />
-                        <MudListItem>
-                            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Map" @onclick="OpenDialog" Color="Color.Success">Mapa</MudButton>
-                            <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.Info" @onclick="OpenDialog" Color="Color.Info">Informacje</MudButton>
-                        </MudListItem>
-                        <MudDivider />
-                </MudList>
-            </MudCardContent>
-        </MudItem>
-    </MudGrid>
+    <MudCardContent>
+        <MudText Color="_color">Sumaryczna liczba produktów</MudText>
+        <MudText Color="_color">@Machine.CurrentNumberOfProducts / @Machine.Capacity</MudText>
+        <MudDivider/>
+        <MudProgressLinear Color="_color" Min="0" Max="@Machine.Capacity" Value="@Machine.CurrentNumberOfProducts" Class="my-2"/>
+    </MudCardContent>
     <MudExpansionPanels>
         <MudExpansionPanel Text="Wszystkie produkty" MaxHeight="1000">
             @foreach (var product in Machine.ProductsList)
@@ -40,6 +30,7 @@
         </MudExpansionPanel>
     </MudExpansionPanels>
 </MudCard>
+
 @code {
 
     [Parameter]public Machine Machine { get; set; }
@@ -64,14 +55,15 @@
         }
         else
         {
-            _severity = Severity.Normal;
+            _severity = Severity.Info;
+            _color = Color.Info;
             _noIcon = true;
         }
         
     }
-    private void OpenDialog()
+
+    private void OpenDetails()
     {
-        DialogService.Show<SimpleDialog>("Tu coś może być");
+        NavigationManager.NavigateTo($"mymachines/{Machine.Id}");
     }
-    
 }

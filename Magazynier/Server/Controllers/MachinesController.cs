@@ -14,7 +14,7 @@ namespace MagazynierApp.Server.Controllers
         public static Machine[] ListOfMachines = { 
             new Machine
             {
-                Id = 1,
+                Id = 0,
                 Name = "D1080",
                 Localization = "Brembo",
                 Capacity = 500,
@@ -23,7 +23,7 @@ namespace MagazynierApp.Server.Controllers
             },
             new Machine
             {
-                Id = 2,
+                Id = 1,
                 Name = "D540",
                 Localization = "KGHM",
                 Capacity = 600,
@@ -32,7 +32,7 @@ namespace MagazynierApp.Server.Controllers
             },
             new Machine
             {
-                Id = 3,
+                Id = 2,
                 Name = "F80",
                 Localization = "Ekookna",
                 Capacity = 500,
@@ -41,7 +41,7 @@ namespace MagazynierApp.Server.Controllers
             },
             new Machine
             {
-                Id = 4,
+                Id = 3,
                 Name = "L40",
                 Localization = "Tenneco",
                 Capacity = 800,
@@ -50,7 +50,7 @@ namespace MagazynierApp.Server.Controllers
             },
             new Machine
             {
-                Id = 5,
+                Id = 4,
                 Name = "D1080",
                 Localization = "Tenneco",
                 Capacity = 1000,
@@ -59,7 +59,7 @@ namespace MagazynierApp.Server.Controllers
             },
             new Machine
             {
-                Id = 6,
+                Id = 5,
                 Name = "F80",
                 Localization = "Ekookna",
                 Capacity = 550,
@@ -79,7 +79,7 @@ namespace MagazynierApp.Server.Controllers
         [HttpPut]
         public void UpdateMachines(Machine machine)
         {
-            ListOfMachines[machine.Id-1] = machine;
+            ListOfMachines[machine.Id] = machine;
         }
     }
 }

@@ -10,6 +10,7 @@ namespace Magazynier.Shared
         public MachineWarningNotification(Machine machine)
         {
             MachineName = machine.Name;
+            MachineId = machine.Id;
             ProductsToRefill = machine.ProductsToRefill;
             DistributionPoint = machine.Localization;
             AlertTime = DateTime.Now;
@@ -20,7 +21,7 @@ namespace Magazynier.Shared
             
         }
 
-        public int Id { get; set; }
+        public int MachineId { get; set; }
 
         public string MachineName { get; set; }
 

@@ -2,6 +2,7 @@
 @using Magazynier.Shared
 @inject HttpClient HttpClient
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 @if (_alerts != null)
 {
@@ -13,7 +14,7 @@
     {
         @foreach (var alert in _alerts)
             {
-                <MudButton Variant="Variant.Text">
+                <MudButton OnClick="@(() => {GoToMachine(alert.MachineId);})" Variant="Variant.Text">
                     <MudAlert Class="mx-4 my-4" Severity="Severity.Error" Variant="Variant.Outlined">
                         @alert.Title
                         <p>@alert.AlertTime.ToShortTimeString()</p>
@@ -52,5 +53,9 @@ else
             Snackbar.Add("Usunięto", Severity.Success);
             await GetList();
         }
+    }
+    private void GoToMachine(int alertMachineId)
+    {
+       NavigationManager.NavigateTo($"/mymachines/{alertMachineId}");
     }
 }

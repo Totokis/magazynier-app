@@ -1,0 +1,139 @@
+@using Magazynier.Shared
+@using MudBlazor.Services
+@implements IDisposable
+@inject HttpClient HttpClient
+
+<MudCarouselItem Color="_color" Transition="Transition.Slide">
+    <div  style="width: 100%; height:100%">
+       <MudCard Class="my-6 mx-1" Elevation="4">
+           <MudGrid>
+               <MudItem xs="6">
+                   <MudPaper Elevation="3">
+                       <MudCardMedia Height="@(Convert.ToInt32(height * 1.0 / divider))" Image="@Machine.ImageUrl"></MudCardMedia>
+                   </MudPaper>
+               </MudItem>   
+               <MudItem xs="6">
+                   <MudPaper Class="my-3 mr-1" Elevation="3">
+                       <MudText Typo="Typo.subtitle2">@Machine.Name</MudText>
+                   </MudPaper>
+                   <MudPaper Class="my-3 mr-1" Elevation="3">
+                       <MudText Typo="Typo.subtitle2"><MudIcon Icon="@Icons.Material.Filled.LocationOn"/> @Machine.Localization</MudText>
+                   </MudPaper>
+                   <MudPaper Class="my-3 mr-1" Elevation="3">
+                       <MudText Typo="Typo.subtitle2">Dodatkowe informacje</MudText>
+                   </MudPaper>
+               </MudItem>
+           </MudGrid>
+           <div class="mx-auto mt-3"  style="max-width: 400px;">
+               <MudExpansionPanels>
+                   <MudExpansionPanel MaxHeight="@(Convert.ToInt32(height * 1.0 / 2))" HideIcon="true">
+                       <TitleContent>
+                           <div class="d-flex">
+                               <MudText Class="mt-1">Alerty</MudText>
+                               <MudBadge Content="@_alerts" Color="Color.Primary" Overlap="true" Class="d-flex ml-auto">
+                                   <MudIcon Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" />
+                               </MudBadge>
+                           </div>
+                       </TitleContent>
+                       <ChildContent>
+                           @foreach (var alert in Alerts)
+                           {
+                               <MudButton Variant="Variant.Text">
+                                        @alert.Title
+                                       <p>@alert.AlertTime.ToShortTimeString()</p>
+                                       <p>@alert.Message</p>
+                               
+                               </MudButton>
+                           }
+                       </ChildContent>
+                   </MudExpansionPanel>
+               </MudExpansionPanels>
+           </div>
+       </MudCard>
+    </div>
+</MudCarouselItem>
+
+@code {
+    [Parameter] public Machine Machine { get; set; }
+    [Parameter] public MachineWarningNotification[] Alerts{ get; set; }
+    
+    [Inject] IResizeListenerService ResizeListener { get; set; }
+    Severity _severity;
+    bool _noIcon = true;
+    bool isOpen;
+    Color _color;
+    int height;
+    int width;
+    float divider = 1f;
+    private int _alerts;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ResizeListener.OnResized += OnResized;
+
+            var size = await ResizeListener.GetBrowserWindowSize();
+            height = size.Height;
+
+            ChangeDivider(size);
+            
+            StateHasChanged();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    private void ChangeDivider(BrowserWindowSize size)
+    {
+
+        if (size.Width is > 200 and < 300)
+        {
+            divider = 5;
+        }
+        else if (size.Width is >=300 and < 400)
+        {
+            divider = 3;
+        }
+        else if (size.Width >= 400)
+        {
+            divider = 2;
+        }
+       
+    }
+
+    private void OnResized(object sender, BrowserWindowSize size)
+    {
+        height = size.Height;
+        ChangeDivider(size);
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        ResizeListener.OnResized -= OnResized;
+    }
+    protected override void OnParametersSet()
+    {
+        _alerts = Alerts.ToArray().Length;
+        if (Machine.IsAlmostEmpty)
+        {
+            _severity = Severity.Error;
+            _color = Color.Error;
+            _noIcon = false;
+        }
+        else if (Machine.IsFull)
+        {
+            _severity = Severity.Success;
+            _color = Color.Success;
+            _noIcon = true;
+        }
+        else
+        {
+            _severity = Severity.Info;
+            _color = Color.Info;
+            _noIcon = true;
+        }
+        
+    }
+}
